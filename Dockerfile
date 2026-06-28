@@ -1,25 +1,14 @@
-FROM php:8.3-fpm
+FROM php:8.3-apache
 
 RUN apt-get update && apt-get install -y \
     wget \
     unzip \
     libzip-dev \
- && docker-php-ext-install mysqli zip
-
-ENV MYBB_VERSION=1840
-
-RUN wget https://resources.mybb.com/downloads/mybb_${MYBB_VERSION}.zip -O /tmp/mybb.zip \
- && unzip /tmp/mybb.zip -d /tmp \
- && mkdir -p /var/www/html \
- && cp -R /tmp/Upload/* /var/www/html/ \
- && rm -rf /tmp/*
+ && docker-php-ext-install mysqli zip \
+ && a2enmod rewrite
 
 COPY entrypoint.sh /entrypoint.sh
-
 RUN chmod +x /entrypoint.sh
 
-WORKDIR /var/www/html
-
 ENTRYPOINT ["/entrypoint.sh"]
-
-CMD ["php-fpm"]
+CMD ["apache2-foreground"]
