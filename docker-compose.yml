@@ -1,0 +1,48 @@
+services:
+
+  db:
+    image: mariadb:11
+
+    restart: unless-stopped
+
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+    volumes:
+      - db_data:/var/lib/mysql
+
+  php:
+    build: .
+
+    restart: unless-stopped
+
+    depends_on:
+      - db
+
+    volumes:
+      - mybb_data:/var/www/html
+
+  nginx:
+
+    image: nginx:alpine
+
+    restart: unless-stopped
+
+    depends_on:
+      - php
+
+    expose:
+      - "80"
+
+    volumes:
+      - mybb_data:/var/www/html
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+
+volumes:
+
+  db_data:
+
+  mybb_data:
